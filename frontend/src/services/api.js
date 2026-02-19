@@ -9,15 +9,21 @@ const api = axios.create({
   },
 });
 
+// 👇 Add this interceptor — attaches token to EVERY request automatically
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Receipts
 export const uploadReceipt = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
-  
   const response = await api.post('/api/receipts/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };
@@ -84,10 +90,27 @@ export const deleteInsight = async (id) => {
   return response.data;
 };
 
-// Add this to your existing api.js file
+// Recurring
 export const getRecurringExpenses = async () => {
-    const response = await axios.get(`${API_BASE_URL}/api/recurring/analyze`);
-    return response.data;
+  const response = await api.get('/api/recurring/analyze');  // 👈 use api not axios
+  return response.data;
+};
+
+// Receipt detail
+export const getReceiptDetail = async (receiptId) => {
+  const response = await api.get(`/api/receipts/${receiptId}`);
+  return response.data;
+};
+
+// Profile
+export const updateProfile = async (data) => {
+  const response = await api.put('/api/auth/profile', data);
+  return response.data;
+};
+
+export const changePassword = async (data) => {
+  const response = await api.put('/api/auth/change-password', data);
+  return response.data;
 };
 
 export default api;
