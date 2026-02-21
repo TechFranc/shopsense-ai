@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
+import Profile from './pages/Profile';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Budgets from './pages/Budgets';
@@ -45,6 +46,9 @@ function App() {
               } />
               <Route path="/budgets" element={
                 <ProtectedRoute><Budgets /></ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute><Profile /></ProtectedRoute>
               } />
 
               {/* 🔁 Catch-all — redirect unknown routes to home */}

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiFile, FiTrash2, FiCalendar, FiDollarSign } from 'react-icons/fi';
+import { FiFile, FiTrash2, FiCalendar, FiDollarSign, FiEye } from 'react-icons/fi';
 import { getReceipts, deleteReceipt } from '../services/api';
+import ReceiptDetailModal from './ReceiptDetailModal';
 
 const Receipts = () => {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReceiptId, setSelectedReceiptId] = useState(null); // 👈 added
 
   useEffect(() => {
     loadReceipts();
@@ -22,9 +24,9 @@ const Receipts = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation(); // 👈 prevent modal opening when clicking delete
     if (!confirm('Are you sure you want to delete this receipt?')) return;
-    
     try {
       await deleteReceipt(id);
       setReceipts(receipts.filter(r => r.id !== id));
@@ -43,7 +45,10 @@ const Receipts = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gradient">Your Receipts</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold text-gradient">Your Receipts</h2>
+        <p className="text-white/50 text-sm">Click any receipt to view details</p> {/* 👈 hint */}
+      </div>
 
       {receipts.length === 0 ? (
         <motion.div
@@ -63,7 +68,8 @@ const Receipts = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="glass-card p-6 hover:scale-102"
+              onClick={() => setSelectedReceiptId(receipt.id)} // 👈 open modal on click
+              className="glass-card p-6 hover:scale-102 cursor-pointer hover:bg-white/15 transition-all" // 👈 cursor pointer
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -86,7 +92,7 @@ const Receipts = () => {
                     </div>
                   </div>
 
-                  {/* Items List */}
+                  {/* Items Preview */}
                   {receipt.items && receipt.items.length > 0 && (
                     <div className="mt-4 space-y-2">
                       <p className="text-sm font-semibold text-white/70">Items:</p>
@@ -107,17 +113,41 @@ const Receipts = () => {
                   )}
                 </div>
 
-                <button
-                  onClick={() => handleDelete(receipt.id)}
-                  className="ml-4 p-2 rounded-lg backdrop-blur-sm bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 transition-all"
-                  title="Delete receipt"
-                >
-                  <FiTrash2 className="text-red-400" />
-                </button>
+                {/* Action Buttons */}
+                <div className="ml-4 flex flex-col gap-2">
+                  {/* View Detail Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedReceiptId(receipt.id);
+                    }}
+                    className="p-2 rounded-lg backdrop-blur-sm bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 transition-all"
+                    title="View details"
+                  >
+                    <FiEye className="text-purple-400" />
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => handleDelete(e, receipt.id)}
+                    className="p-2 rounded-lg backdrop-blur-sm bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 transition-all"
+                    title="Delete receipt"
+                  >
+                    <FiTrash2 className="text-red-400" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
+      )}
+
+      {/* Receipt Detail Modal */}
+      {selectedReceiptId && (
+        <ReceiptDetailModal
+          receiptId={selectedReceiptId}
+          onClose={() => setSelectedReceiptId(null)}
+        />
       )}
     </div>
   );

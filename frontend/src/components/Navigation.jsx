@@ -81,12 +81,15 @@ const Navigation = () => {
             {/* Logged IN — show username & logout */}
             {user && (
               <div className="flex items-center gap-3 ml-4 pl-4 border-l border-white/20">
-                <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <FiUser className="text-sm text-white" />
-                  </div>
-                  <span className="font-medium text-sm">Hi, {user.username}</span>
-                </div>
+               <Link
+  to="/profile"
+  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+>
+  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+    <FiUser className="text-sm text-white" />
+  </div>
+  <span className="font-medium text-sm">Hi, {user.username}</span>
+</Link>
                 <button
                   onClick={logout}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-white/70 hover:text-red-400 hover:bg-red-500/10 transition-all"
